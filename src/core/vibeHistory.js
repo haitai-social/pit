@@ -42,7 +42,7 @@ async function appendVibeHistory(conversationName, singleChat) {
     // 保存更新后的 conversation
     await storage.writeConversation(conversationName, conversation);
     
-    // 按 FIFO 逻辑更新 meta.json 中的 latest_conversation
+    // 按 FIFO 逻辑更新 meta.json 中的 conversation_queue
     await storage.updateLatestConversation(conversationName);
     
     console.log(`✅ Successfully appended chat to conversation "${conversationName}"`);

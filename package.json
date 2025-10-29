@@ -1,6 +1,6 @@
 {
   "name": "@haitai-social/pit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A CLI tool for managing conversation history and chat records",
   "main": "index.js",
   "bin": {
@@ -16,10 +16,11 @@
   },
   "keywords": [
     "cli",
-    "chat",
+    "prompt",
     "conversation",
-    "history",
-    "record"
+    "git",
+    "version-control",
+    "vibe-coding"
   ],
   "author": "",
   "license": "MIT",

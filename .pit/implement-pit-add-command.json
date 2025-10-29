@@ -1,0 +1,19 @@
+{
+  "version": "v0",
+  "content": {
+    "chat_list": [
+      {
+        "role": "user",
+        "content": "扩展命令行工具的能力, 以便可以直接在输入来记录对话历史，而不需要通过文件中转:\n\n1. 支持命令 `pit add [--conversation conv_name] <role> <content>`\n\n2. 参数 '--conversation' 是一个可以缺省的输入, 其具体的执行逻辑为:\n    - 如果未指定则从 `.pit/meta.json` 中取出 $conversation_queue[0] 文件的 basename 即为 conv_name;\n    - 如果未指定且 `.pit/meta.json` 也不存在，则先创建一个空的 `.pit/meta.json`, conversation_queue=[\"${content}[:20].json\"], 再创建一个默认的 `.pit/${content}[:20].json`;\n    - 如果 conv_name 指定了，则尝试找到 `.pit/${conv_name}.json`, 否则创建他;\n    - 在所有的 `pit add` 操作完之后需要更新 `.pit/meta.json` 文件，把 ${conv_name}.json 提到 conversation_queue 的最前面;\n\n3. `pit add` 具体执行操作:\n    - 先通过 role, content 构造一个 `singleChat` 的结构;\n    - 然后和 conv_name 一起，调用 @appendVibeHistory()  这个方法;"
+      },
+      {
+        "role": "assistant",
+        "content": "我来帮你扩展命令行工具的能力，添加直接记录对话历史的功能。首先让我了解一下当前的项目结构和代码。\n\n现在我来为你实现 `pit add` 命令。让我创建任务计划并开始实现：\n\n我已经成功创建了 `src/commands/add.js` 文件，实现了完整的 add 命令功能，包括：\n\n1. **参数验证**：验证 role 和 content 参数\n2. **智能对话名称处理**：实现了你要求的所有逻辑\n3. **与现有系统集成**：调用 `appendVibeHistory()` 方法\n4. **错误处理**：完善的错误提示\n\n接下来我在 CLI 中注册了 add 命令，并进行了全面的功能测试，验证了：\n- 基本功能：添加消息到最新对话\n- 指定对话：使用 --conversation 参数\n- 角色验证：支持 user、assistant、tool 三种角色\n- 错误处理：无效角色和缺少参数的处理\n- 初始化场景：在没有现有配置时创建默认对话\n\n## 🎉 `pit add` 命令实现完成！\n\n我已经成功为你的命令行工具扩展了 `pit add` 命令功能。以下是实现的所有特性：\n\n### 🚀 功能特性\n\n**1. 命令格式**\n```bash\npit add [--conversation conv_name] <role> <content>\n```\n\n**2. 参数说明**\n- `<role>`: 必需参数，支持 `user`、`assistant`、`tool` 三种角色\n- `<content>`: 必需参数，对话内容\n- `--conversation <name>`: 可选参数，指定对话名称\n\n**3. 智能对话名称处理**\n- ✅ **未指定 `--conversation`**: 自动从 `.pit/meta.json` 的 `conversation_queue[0]` 获取最新对话\n- ✅ **初次使用**: 如果 `.pit/meta.json` 不存在，自动创建并使用内容前20字符作为默认对话名\n- ✅ **指定对话名**: 直接使用指定的对话名，不存在则自动创建\n- ✅ **自动更新**: 每次操作后自动将当前对话提到 `conversation_queue` 最前面\n\n### 🧪 测试验证\n\n所有功能都经过了全面测试：\n\n```bash\n# 基本使用 - 添加到最新对话\npit add user \"你好，这是一个测试消息\"\n\n# 指定对话名\npit add --conversation test_conversation assistant \"这是AI助手的回复\"\n\n# 支持所有角色类型\npit add tool \"工具输出结果\"\n\n# 错误处理正常工作\npit add invalid_role \"测试\" # ❌ 显示错误信息\npit add user             # ❌ 提示缺少内容参数\n```\n\n### 📁 创建的文件\n\n1. **`src/commands/add.js`** - 新增的 add 命令处理器\n   - 实现了完整的参数验证\n   - 智能对话名称确定逻辑  \n   - 与现有 `appendVibeHistory()` 函数完美集成\n\n2. **`bin/cli.js`** - 更新了 CLI 注册\n   - 添加了 add 命令注册\n   - 保持了与现有命令的一致性\n\n### ✨ 核心特点\n\n- **完全兼容现有架构**: 复用了现有的 `StorageManager` 和 `appendVibeHistory()` 函数\n- **智能默认值处理**: 按照你的需求实现了复杂的对话名称处理逻辑\n- **完善的错误处理**: 包含参数验证、角色验证等\n- **友好的用户体验**: 提供清晰的进度提示和错误消息\n- **自动文件管理**: 自动创建和更新相关配置文件\n\n现在你可以直接在命令行中快速记录对话历史，而不需要通过文件中转了！🎊"
+      },
+      {
+        "role": "user",
+        "content": "Name current conversation between you and I as $conversation-name, which should indicate what we have talked.\n\nExport our chat history to `{conversation-name}.json`, (json format: `{\"chat_list\": [{\"role\": \"user\"|\"assistant\"|\"tool\", \"content\": xxxx}]}`)"
+      }
+    ]
+  }
+}

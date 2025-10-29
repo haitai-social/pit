@@ -38,7 +38,7 @@ class StorageManager {
       // 检查 meta.json 是否存在，不存在则创建
       if (!(await fs.pathExists(this.metaFile))) {
         const initialMeta = {
-          latest_conversation: []
+          conversation_queue: []
         };
         await fs.writeJson(this.metaFile, initialMeta, { spaces: 2 });
       }
@@ -106,7 +106,7 @@ class StorageManager {
   }
 
   /**
-   * 更新 latest_conversation 列表（FIFO 逻辑）
+   * 更新 conversation_queue 列表（FIFO 逻辑）
    */
   async updateLatestConversation(conversationName) {
     try {
@@ -114,15 +114,15 @@ class StorageManager {
       const fileName = `${conversationName}.json`;
       
       // 移除已存在的相同文件名（如果有的话）
-      meta.latest_conversation = meta.latest_conversation.filter(name => name !== fileName);
+      meta.conversation_queue = meta.conversation_queue.filter(name => name !== fileName);
       
       // 添加到列表开头
-      meta.latest_conversation.unshift(fileName);
+      meta.conversation_queue.unshift(fileName);
       
       // 如果列表过长，可以限制数量（可选）
       const MAX_RECENT_CONVERSATIONS = 10;
-      if (meta.latest_conversation.length > MAX_RECENT_CONVERSATIONS) {
-        meta.latest_conversation = meta.latest_conversation.slice(0, MAX_RECENT_CONVERSATIONS);
+      if (meta.conversation_queue.length > MAX_RECENT_CONVERSATIONS) {
+        meta.conversation_queue = meta.conversation_queue.slice(0, MAX_RECENT_CONVERSATIONS);
       }
       
       await this.writeMeta(meta);

@@ -1,5 +1,6 @@
 {
-  "latest_conversation": [
+  "conversation_queue": [
+    "implement-pit-add-command.json",
     "new-npm-package-repository.json"
   ]
 }

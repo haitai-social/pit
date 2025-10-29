@@ -1,32 +1,32 @@
-# Pit - 对话历史管理工具
+# Pit - Conversation History Management Tool
 
-🕳️ 一个用于管理对话历史和聊天记录的命令行工具。
+🕳️ A command-line tool for managing conversation history and chat logs.
 
-## 安装
+## Installation
 
 ```bash
 npm install -g @haitai-social/pit
 ```
 
-## 使用方法
+## Usage
 
-### 记录对话
+### Record Conversation
 
-使用 `pit record --json` 命令从 JSON 文件中导入聊天记录：
+Use the `pit record --json` command to import chat logs from a JSON file:
 
 ```bash
 pit record --json conversation.json
 ```
 
-### 查看帮助
+### View Help
 
 ```bash
 pit help
 ```
 
-## JSON 文件格式
+## JSON File Format
 
-输入的 JSON 文件应该具有以下结构：
+The input JSON file should have the following structure:
 
 ```json
 {
@@ -47,33 +47,33 @@ pit help
 }
 ```
 
-### 支持的角色类型
+### Supported Role Types
 
-- `user`: 用户消息
-- `assistant`: 助手回复
-- `tool`: 工具执行结果
+- `user`: User message
+- `assistant`: Assistant reply
+- `tool`: Tool execution result
 
-## 存储结构
+## Storage Structure
 
-数据存储在用户主目录的 `.pit/` 文件夹中：
+Data is stored in the `.pit/` folder under the user's home directory:
 
 ```
 ~/.pit/
-├── meta.json              # 元数据文件
-├── conversation1.json     # 对话文件1
-├── conversation2.json     # 对话文件2
+├── meta.json              # Metadata file
+├── conversation1.json     # Conversation file 1
+├── conversation2.json     # Conversation file 2
 └── ...
 ```
 
-### meta.json 结构
+### meta.json Structure
 
 ```json
 {
-  "latest_conversation": ["conversation1.json", "conversation2.json"]
+  "conversation_queue": ["conversation1.json", "conversation2.json"]
 }
 ```
 
-### conversation.json 结构
+### conversation.json Structure
 
 ```json
 {
@@ -82,13 +82,13 @@ pit help
     "chat_list": [
       {
         "role": "user",
-        "content": "消息内容"
+        "content": "Message content"
       }
     ]
   }
 }
 ```
 
-## 贡献
+## Contributing
 
-欢迎提交 Issue 和 Pull Request 到 [GitHub 仓库](https://github.com/haitai-social/pit)。
+Issues and Pull Requests are welcome at the [GitHub repository](https://github.com/haitai-social/pit).
