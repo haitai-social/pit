@@ -28,6 +28,9 @@
   },
   "homepage": "https://github.com/haitai-social/pit#readme",
   "preferGlobal": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "commander": "^11.0.0",
     "fs-extra": "^11.0.0",

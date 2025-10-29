@@ -89,37 +89,6 @@ pit help
 }
 ```
 
-## 开发
-
-### 本地开发
-
-1. 克隆仓库：
-```bash
-git clone https://github.com/haitai-social/pit.git
-cd pit
-```
-
-2. 安装依赖：
-```bash
-npm install
-```
-
-3. 本地测试：
-```bash
-npm link
-pit help
-```
-
-### 发布
-
-```bash
-npm publish
-```
-
-## 许可证
-
-MIT
-
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request 到 [GitHub 仓库](https://github.com/haitai-social/pit)。
