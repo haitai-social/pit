@@ -1,0 +1,39 @@
+{
+  "name": "@haitai-social/pit",
+  "version": "1.0.0",
+  "description": "A CLI tool for managing conversation history and chat records",
+  "main": "index.js",
+  "bin": {
+    "pit": "./bin/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node bin/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haitai-social/pit.git"
+  },
+  "keywords": [
+    "cli",
+    "chat",
+    "conversation",
+    "history",
+    "record"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/haitai-social/pit/issues"
+  },
+  "homepage": "https://github.com/haitai-social/pit#readme",
+  "preferGlobal": true,
+  "dependencies": {
+    "commander": "^11.0.0",
+    "fs-extra": "^11.0.0",
+    "npm-check-updates": "^18.3.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
