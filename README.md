@@ -1,4 +1,6 @@
-# Pit - Conversation History Management Tool
+# Pit - AI Conversation History Management Tool
+
+💡`pit` stand for `prompt git`.
 
 🕳️ A command-line tool for managing conversation history and chat logs.
 

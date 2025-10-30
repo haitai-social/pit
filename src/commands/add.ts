@@ -1,13 +1,13 @@
-const fs = require('fs-extra');
-const path = require('path');
-const { appendVibeHistory } = require('../core/vibeHistory');
-const { StorageManager } = require('../storage');
+import * as path from 'path';
+import { appendVibeHistory } from '../core/vibeHistory';
+import { StorageManager } from '../storage';
+import { RoleEnum, SingleChat, CommandOptions } from '../types';
 
 /**
  * add 命令处理器
  * 处理 `pit add [--conversation conv_name] <role> <content>` 命令
  */
-async function addCommand(role, content, options) {
+export async function addCommand(role: string, content: string, options: CommandOptions): Promise<void> {
   try {
     // 验证必需参数
     if (!role) {
@@ -23,8 +23,8 @@ async function addCommand(role, content, options) {
     }
 
     // 验证 role 参数
-    const validRoles = ['user', 'assistant', 'tool'];
-    if (!validRoles.includes(role)) {
+    const validRoles: RoleEnum[] = ['user', 'assistant', 'tool'];
+    if (!validRoles.includes(role as RoleEnum)) {
       console.error(`❌ Error: Invalid role "${role}". Must be one of: ${validRoles.join(', ')}`);
       process.exit(1);
     }
@@ -35,15 +35,15 @@ async function addCommand(role, content, options) {
     await storage.initialize();
 
     // 确定 conversation 名称
-    let conversationName = await determineConversationName(storage, options.conversation, content);
+    const conversationName = await determineConversationName(storage, options.conversation, content);
 
     console.log(`📝 Adding chat record to conversation: "${conversationName}"`);
     console.log(`   Role: ${role}`);
     console.log(`   Content: ${content.length > 100 ? content.slice(0, 100) + '...' : content}`);
 
     // 构造 singleChat 结构
-    const singleChat = {
-      role: role,
+    const singleChat: SingleChat = {
+      role: role as RoleEnum,
       content: content
     };
 
@@ -53,7 +53,7 @@ async function addCommand(role, content, options) {
     console.log(`\n🎉 Successfully added chat record to "${conversationName}"!`);
 
   } catch (error) {
-    console.error(`❌ Failed to add chat record: ${error.message}`);
+    console.error(`❌ Failed to add chat record: ${(error as Error).message}`);
     process.exit(1);
   }
 }
@@ -61,7 +61,7 @@ async function addCommand(role, content, options) {
 /**
  * 确定要使用的 conversation 名称
  */
-async function determineConversationName(storage, specifiedConversation, content) {
+async function determineConversationName(storage: StorageManager, specifiedConversation: string | undefined, content: string): Promise<string> {
   // 如果指定了 conversation 名称，直接使用
   if (specifiedConversation) {
     return specifiedConversation;
@@ -90,9 +90,9 @@ async function determineConversationName(storage, specifiedConversation, content
 /**
  * 创建默认的 conversation
  */
-async function createDefaultConversation(storage, content) {
+async function createDefaultConversation(storage: StorageManager, content: string): Promise<string> {
   // 使用 content 的前20个字符作为默认名称
-  const defaultName = content.slice(0, 20).replace(/[^a-zA-Z0-9\u4e00-\u9fa5_-]/g, '_');
+  const defaultName = content.slice(0, 20).replace(/[^a-zA-Z0-9\u4e00-\u9fa5_-]/g, '-');
   
   // 确保名称不为空
   const conversationName = defaultName || 'default_conversation';
@@ -120,5 +120,3 @@ async function createDefaultConversation(storage, content) {
   
   return conversationName;
 }
-
-module.exports = { addCommand };

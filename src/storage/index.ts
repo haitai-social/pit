@@ -1,7 +1,12 @@
-const fs = require('fs-extra');
-const path = require('path');
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import { Conversation, Meta } from '../types';
 
-class StorageManager {
+export class StorageManager {
+  private workspace: string;
+  private pitDir: string;
+  private metaFile: string;
+
   constructor() {
     this.workspace = this.findWorkspace();
     this.pitDir = path.join(this.workspace, '.pit');
@@ -12,7 +17,7 @@ class StorageManager {
    * 查找 workspace 路径
    * 优先找到 .git 所在文件夹，否则使用当前工作目录
    */
-  findWorkspace() {
+  private findWorkspace(): string {
     let currentDir = process.cwd();
 
     // 向上查找 .git 目录
@@ -31,55 +36,55 @@ class StorageManager {
   /**
    * 初始化 .pit 目录和 meta.json 文件
    */
-  async initialize() {
+  async initialize(): Promise<void> {
     try {
       await fs.ensureDir(this.pitDir);
       
       // 检查 meta.json 是否存在，不存在则创建
       if (!(await fs.pathExists(this.metaFile))) {
-        const initialMeta = {
+        const initialMeta: Meta = {
           conversation_queue: []
         };
         await fs.writeJson(this.metaFile, initialMeta, { spaces: 2 });
       }
     } catch (error) {
-      throw new Error(`Failed to initialize storage: ${error.message}`);
+      throw new Error(`Failed to initialize storage: ${(error as Error).message}`);
     }
   }
 
   /**
    * 读取 meta.json 文件
    */
-  async readMeta() {
+  async readMeta(): Promise<Meta> {
     try {
-      return await fs.readJson(this.metaFile);
+      return await fs.readJson(this.metaFile) as Meta;
     } catch (error) {
-      throw new Error(`Failed to read meta file: ${error.message}`);
+      throw new Error(`Failed to read meta file: ${(error as Error).message}`);
     }
   }
 
   /**
    * 写入 meta.json 文件
    */
-  async writeMeta(data) {
+  async writeMeta(data: Meta): Promise<void> {
     try {
       await fs.writeJson(this.metaFile, data, { spaces: 2 });
     } catch (error) {
-      throw new Error(`Failed to write meta file: ${error.message}`);
+      throw new Error(`Failed to write meta file: ${(error as Error).message}`);
     }
   }
 
   /**
    * 读取 conversation 文件
    */
-  async readConversation(conversationName) {
+  async readConversation(conversationName: string): Promise<Conversation> {
     const conversationPath = path.join(this.pitDir, `${conversationName}.json`);
     try {
       if (await fs.pathExists(conversationPath)) {
-        return await fs.readJson(conversationPath);
+        return await fs.readJson(conversationPath) as Conversation;
       } else {
         // 如果文件不存在，创建新的 conversation 结构
-        const newConversation = {
+        const newConversation: Conversation = {
           version: "v0",
           content: {
             chat_list: []
@@ -89,26 +94,26 @@ class StorageManager {
         return newConversation;
       }
     } catch (error) {
-      throw new Error(`Failed to read conversation ${conversationName}: ${error.message}`);
+      throw new Error(`Failed to read conversation ${conversationName}: ${(error as Error).message}`);
     }
   }
 
   /**
    * 写入 conversation 文件
    */
-  async writeConversation(conversationName, data) {
+  async writeConversation(conversationName: string, data: Conversation): Promise<void> {
     const conversationPath = path.join(this.pitDir, `${conversationName}.json`);
     try {
       await fs.writeJson(conversationPath, data, { spaces: 2 });
     } catch (error) {
-      throw new Error(`Failed to write conversation ${conversationName}: ${error.message}`);
+      throw new Error(`Failed to write conversation ${conversationName}: ${(error as Error).message}`);
     }
   }
 
   /**
    * 更新 conversation_queue 列表（FIFO 逻辑）
    */
-  async updateLatestConversation(conversationName) {
+  async updateLatestConversation(conversationName: string): Promise<void> {
     try {
       const meta = await this.readMeta();
       const fileName = `${conversationName}.json`;
@@ -127,9 +132,7 @@ class StorageManager {
       
       await this.writeMeta(meta);
     } catch (error) {
-      throw new Error(`Failed to update latest conversation: ${error.message}`);
+      throw new Error(`Failed to update latest conversation: ${(error as Error).message}`);
     }
   }
 }
-
-module.exports = { StorageManager };

@@ -1,11 +1,12 @@
-const { StorageManager } = require('../storage');
+import { StorageManager } from '../storage';
+import { SingleChat, RoleEnum } from '../types';
 
 /**
  * appendVibeHistory 函数：将单个聊天记录添加到指定的 conversation 中
- * @param {string} conversationName - conversation 名称
- * @param {Object} singleChat - 单个聊天记录对象，格式：{role: "user"|"assistant"|"tool", content: xxxx}
+ * @param conversationName - conversation 名称
+ * @param singleChat - 单个聊天记录对象，格式：{role: "user"|"assistant"|"tool", content: xxxx}
  */
-async function appendVibeHistory(conversationName, singleChat) {
+export async function appendVibeHistory(conversationName: string, singleChat: SingleChat): Promise<void> {
   const storage = new StorageManager();
   
   try {
@@ -17,7 +18,8 @@ async function appendVibeHistory(conversationName, singleChat) {
       throw new Error('Invalid singleChat format: must be an object');
     }
     
-    if (!singleChat.role || !['user', 'assistant', 'tool'].includes(singleChat.role)) {
+    const validRoles: RoleEnum[] = ['user', 'assistant', 'tool'];
+    if (!singleChat.role || !validRoles.includes(singleChat.role)) {
       throw new Error('Invalid role: must be one of "user", "assistant", "tool"');
     }
     
@@ -47,12 +49,13 @@ async function appendVibeHistory(conversationName, singleChat) {
     
     console.log(`✅ Successfully appended chat to conversation "${conversationName}"`);
     console.log(`   Role: ${singleChat.role}`);
-    console.log(`   Content: ${typeof singleChat.content === 'string' ? singleChat.content.slice(0, 100) + '...' : JSON.stringify(singleChat.content).slice(0, 100) + '...'}`);
+    const contentPreview = typeof singleChat.content === 'string' 
+      ? singleChat.content.slice(0, 100) + '...' 
+      : JSON.stringify(singleChat.content).slice(0, 100) + '...';
+    console.log(`   Content: ${contentPreview}`);
     
   } catch (error) {
-    console.error(`❌ Failed to append vibe history: ${error.message}`);
+    console.error(`❌ Failed to append vibe history: ${(error as Error).message}`);
     throw error;
   }
 }
-
-module.exports = { appendVibeHistory };

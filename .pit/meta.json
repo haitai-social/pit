@@ -1,5 +1,6 @@
 {
   "conversation_queue": [
+    "typescript-refactoring.json",
     "implement-pit-add-command.json",
     "new-npm-package-repository.json"
   ]

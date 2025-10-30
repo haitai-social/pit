@@ -1,12 +1,20 @@
-const fs = require('fs-extra');
-const path = require('path');
-const { appendVibeHistory } = require('../core/vibeHistory');
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import { appendVibeHistory } from '../core/vibeHistory';
+import { SingleChat, CommandOptions } from '../types';
+
+/**
+ * JSON文件数据结构
+ */
+interface JsonData {
+  chat_list: SingleChat[];
+}
 
 /**
  * record 命令处理器
  * 处理 `pit record --json xxx.json` 命令
  */
-async function recordCommand(options) {
+export async function recordCommand(options: CommandOptions): Promise<void> {
   try {
     // 检查是否提供了 --json 参数
     if (!options.json) {
@@ -26,11 +34,11 @@ async function recordCommand(options) {
     console.log(`📖 Reading JSON file: ${jsonFilePath}`);
     
     // 读取并解析 JSON 文件
-    let jsonData;
+    let jsonData: JsonData;
     try {
-      jsonData = await fs.readJson(jsonFilePath);
+      jsonData = await fs.readJson(jsonFilePath) as JsonData;
     } catch (error) {
-      console.error(`❌ Error: Failed to parse JSON file: ${error.message}`);
+      console.error(`❌ Error: Failed to parse JSON file: ${(error as Error).message}`);
       process.exit(1);
     }
 
@@ -66,7 +74,7 @@ async function recordCommand(options) {
         await appendVibeHistory(conversationName, singleChat);
         successCount++;
       } catch (error) {
-        console.error(`   ❌ Error processing record ${i + 1}: ${error.message}`);
+        console.error(`   ❌ Error processing record ${i + 1}: ${(error as Error).message}`);
         errorCount++;
       }
     }
@@ -84,9 +92,7 @@ async function recordCommand(options) {
     }
 
   } catch (error) {
-    console.error(`❌ Unexpected error: ${error.message}`);
+    console.error(`❌ Unexpected error: ${(error as Error).message}`);
     process.exit(1);
   }
 }
-
-module.exports = { recordCommand };
