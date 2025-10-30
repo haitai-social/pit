@@ -15,21 +15,32 @@ export class StorageManager {
 
   /**
    * 查找 workspace 路径
-   * 优先找到 .git 所在文件夹，否则使用当前工作目录
+   * 优先找 .pit 目录，再找 .git 目录，最后使用当前工作目录
    */
   private findWorkspace(): string {
     let currentDir = process.cwd();
 
-    // 向上查找 .git 目录
-    while (currentDir !== path.dirname(currentDir)) {
-      const gitPath = path.join(currentDir, '.git');
-      if (fs.existsSync(gitPath)) {
-        return currentDir;
+    // 先向上查找 .pit 目录
+    let searchDir = currentDir;
+    while (searchDir !== path.dirname(searchDir)) {
+      const pitPath = path.join(searchDir, '.pit');
+      if (fs.existsSync(pitPath)) {
+        return searchDir;
       }
-      currentDir = path.dirname(currentDir);
+      searchDir = path.dirname(searchDir);
     }
 
-    // 如果没有找到 .git，使用当前工作目录
+    // 再向上查找 .git 目录
+    searchDir = currentDir;
+    while (searchDir !== path.dirname(searchDir)) {
+      const gitPath = path.join(searchDir, '.git');
+      if (fs.existsSync(gitPath)) {
+        return searchDir;
+      }
+      searchDir = path.dirname(searchDir);
+    }
+
+    // 如果都没有找到，使用当前工作目录
     return process.cwd();
   }
 
@@ -134,5 +145,59 @@ export class StorageManager {
     } catch (error) {
       throw new Error(`Failed to update latest conversation: ${(error as Error).message}`);
     }
+  }
+
+  /**
+   * 查找 .cursor 目录位置
+   * 从项目根目录向上查找 .cursor 目录
+   */
+  private findCursorDir(): string | null {
+    let searchDir = this.workspace;
+    
+    while (searchDir !== path.dirname(searchDir)) {
+      const cursorPath = path.join(searchDir, '.cursor');
+      if (fs.existsSync(cursorPath)) {
+        return cursorPath;
+      }
+      searchDir = path.dirname(searchDir);
+    }
+    
+    return null;
+  }
+
+  /**
+   * 创建 Cursor IDE 规则文件
+   * @param ruleContent 规则内容
+   */
+  async createCursorRule(ruleContent: string): Promise<void> {
+    try {
+      let cursorRulesDir: string;
+      
+      const existingCursorDir = this.findCursorDir();
+      if (existingCursorDir) {
+        // 如果找到了 .cursor 目录，使用它
+        cursorRulesDir = path.join(existingCursorDir, 'rules');
+      } else {
+        // 否则在项目根目录创建 .cursor/rules
+        cursorRulesDir = path.join(this.workspace, '.cursor', 'rules');
+      }
+      
+      // 确保 rules 目录存在
+      await fs.ensureDir(cursorRulesDir);
+      
+      // 创建规则文件
+      const ruleFilePath = path.join(cursorRulesDir, 'record-chat-history.mdc');
+      await fs.writeFile(ruleFilePath, ruleContent, 'utf8');
+      
+    } catch (error) {
+      throw new Error(`Failed to create Cursor rule: ${(error as Error).message}`);
+    }
+  }
+
+  /**
+   * 获取项目根目录路径
+   */
+  getWorkspacePath(): string {
+    return this.workspace;
   }
 }

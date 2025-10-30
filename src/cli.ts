@@ -4,12 +4,13 @@ import { program } from 'commander';
 import { recordCommand } from './commands/record';
 import { helpCommand } from './commands/help';
 import { addCommand } from './commands/add';
+import { registerInitCommand } from './commands/init';
 
 // 设置程序基本信息
 program
   .name('pit')
   .description('A CLI tool for managing conversation history and chat records')
-  .version('1.0.3');
+  .version('1.0.4');
 
 // 注册 record 命令
 program
@@ -30,6 +31,9 @@ program
   .command('help')
   .description('Show help information')
   .action(helpCommand);
+
+// 注册 init 命令
+registerInitCommand(program);
 
 // 当没有命令时显示帮助
 if (process.argv.length <= 2) {
