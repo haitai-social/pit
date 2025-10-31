@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { Conversation, Meta } from '../types';
+import { Conversation, Meta } from '../types/index.js';
 
 export class StorageManager {
   private workspace: string;
@@ -146,51 +146,48 @@ export class StorageManager {
       throw new Error(`Failed to update latest conversation: ${(error as Error).message}`);
     }
   }
-
+  
   /**
-   * 查找 .cursor 目录位置
-   * 从项目根目录向上查找 .cursor 目录
+   * 创建 Cursor MCP 配置文件
    */
-  private findCursorDir(): string | null {
-    let searchDir = this.workspace;
-    
-    while (searchDir !== path.dirname(searchDir)) {
-      const cursorPath = path.join(searchDir, '.cursor');
-      if (fs.existsSync(cursorPath)) {
-        return cursorPath;
-      }
-      searchDir = path.dirname(searchDir);
-    }
-    
-    return null;
-  }
-
-  /**
-   * 创建 Cursor IDE 规则文件
-   * @param ruleContent 规则内容
-   */
-  async createCursorRule(ruleContent: string): Promise<void> {
+  async createCursorMcpConfig(): Promise<void> {
     try {
-      let cursorRulesDir: string;
-      
-      const existingCursorDir = this.findCursorDir();
-      if (existingCursorDir) {
-        // 如果找到了 .cursor 目录，使用它
-        cursorRulesDir = path.join(existingCursorDir, 'rules');
-      } else {
-        // 否则在项目根目录创建 .cursor/rules
-        cursorRulesDir = path.join(this.workspace, '.cursor', 'rules');
+      // 直接使用工作空间下的 .cursor 目录
+      const cursorDir = path.join(this.workspace, '.cursor');
+
+      // 确保 .cursor 目录存在
+      await fs.ensureDir(cursorDir);
+
+      // 创建 MCP 配置文件
+      const mcpConfigPath = path.join(cursorDir, 'mcp.json');
+
+      // 检查是否已有配置文件，如果有则合并
+      let existingConfig = {};
+      if (await fs.pathExists(mcpConfigPath)) {
+        try {
+          existingConfig = await fs.readJson(mcpConfigPath);
+        } catch (error) {
+          // 如果读取失败，使用空配置
+          existingConfig = {};
+        }
       }
-      
-      // 确保 rules 目录存在
-      await fs.ensureDir(cursorRulesDir);
-      
-      // 创建规则文件
-      const ruleFilePath = path.join(cursorRulesDir, 'record-chat-history.mdc');
-      await fs.writeFile(ruleFilePath, ruleContent, 'utf8');
-      
+
+      // 合并配置，确保 pit server 配置存在
+      const mcpConfig = {
+        ...existingConfig,
+        mcpServers: {
+          ...((existingConfig as any).mcpServers || {}),
+          pit: {
+            command: "npx",
+            args: ["-y", "@haitai-social/pit", "start:mcp"]
+          }
+        }
+      };
+
+      await fs.writeJson(mcpConfigPath, mcpConfig, { spaces: 2 });
+
     } catch (error) {
-      throw new Error(`Failed to create Cursor rule: ${(error as Error).message}`);
+      throw new Error(`Failed to create Cursor MCP config: ${(error as Error).message}`);
     }
   }
 

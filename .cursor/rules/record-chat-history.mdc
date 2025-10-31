@@ -1,7 +1,6 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
-
 Goal: Use the `pit add` command to ensure that the entire chat history between you and the user is recorded without any omissions.
 
 Invocation: Always call `pit add` whenever a tool finishes execution, the user submits a query, or you provide an answer, plan, or summary.

@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { StorageManager } from '../storage';
-import { CURSOR_RULE_CONTENT, SUPPORTED_IDES, SupportedIDE } from '../types/consts';
+import { StorageManager } from '../storage/index.js';
+import { SUPPORTED_IDES, SupportedIDETypes } from '../types/consts.js';
 
 /**
  * 初始化项目命令
@@ -27,7 +27,7 @@ export function registerInitCommand(program: Command): void {
  */
 async function initProject(ide: string): Promise<void> {
   // 验证 IDE 参数
-  if (!SUPPORTED_IDES.includes(ide as SupportedIDE)) {
+  if (!SUPPORTED_IDES.includes(ide as SupportedIDETypes)) {
     throw new Error(`不支持的 IDE: ${ide}. 支持的 IDE: ${SUPPORTED_IDES.join(', ')}`);
   }
 
@@ -44,14 +44,9 @@ async function initProject(ide: string): Promise<void> {
 
   // 根据 IDE 类型创建相应的配置文件
   if (ide === 'cursor') {
-    await storageManager.createCursorRule(CURSOR_RULE_CONTENT);
-    console.log('✓ 已创建 Cursor 规则文件: .cursor/rules/record-chat-history.mdc');
+    await storageManager.createCursorMcpConfig();
+    console.log('✓ 已创建 Cursor MCP 配置文件: .cursor/mcp.json');
   }
 
   console.log('🎉 项目初始化完成！');
-  console.log('');
-  console.log('现在你可以使用以下命令开始记录对话:');
-  console.log('  pit add --conversation <对话名称> <角色> <内容>');
-  console.log('');
-  console.log('角色选项: user, assistant, tool');
 }

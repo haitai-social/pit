@@ -1,23 +1,16 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { recordCommand } from './commands/record';
-import { helpCommand } from './commands/help';
-import { addCommand } from './commands/add';
-import { registerInitCommand } from './commands/init';
+import { helpCommand } from './commands/help.js';
+import { addCommand } from './commands/add.js';
+import { registerInitCommand } from './commands/init.js';
+import { VERSION } from './types/version.js';
 
 // 设置程序基本信息
 program
   .name('pit')
   .description('A CLI tool for managing conversation history and chat records')
-  .version('1.0.4');
-
-// 注册 record 命令
-program
-  .command('record')
-  .description('Record chat conversations from JSON file')
-  .option('--json <file>', 'JSON file containing chat conversations')
-  .action(recordCommand);
+  .version(VERSION);
 
 // 注册 add 命令
 program

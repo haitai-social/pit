@@ -1,5 +1,5 @@
-import { StorageManager } from '../storage';
-import { SingleChat, RoleEnum } from '../types';
+import { StorageManager } from '../storage/index.js';
+import { SingleChat, RoleEnum } from '../types/index.js';
 
 /**
  * appendVibeHistory 函数：将单个聊天记录添加到指定的 conversation 中

@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+Always check if an `AI_README.md` file exists in the directory before operating in it, and read its content.
