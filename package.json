@@ -1,7 +1,8 @@
 {
   "name": "@haitai-social/pit",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A CLI tool for managing conversation history and chat records",
+  "type": "module",
   "main": "dist/index.js",
   "bin": {
     "pit": "./bin/cli.js"
@@ -9,6 +10,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/cli.ts",
+    "dev:mcp": "ts-node src/mcp/index.ts",
     "prepack": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/cli.js"
@@ -29,7 +31,11 @@
     "ai-tools",
     "chat-records",
     "version-control",
-    "tool-calls"
+    "tool-calls",
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "anthropic"
   ],
   "author": "",
   "license": "MIT",
@@ -42,6 +48,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
     "commander": "^11.0.0",
     "fs-extra": "^11.0.0",
     "npm-check-updates": "^18.3.1"
@@ -51,8 +58,19 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.9.2",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "mcp": {
+    "server": {
+      "command": "node",
+      "args": [
+        "dist/mcp/index.js"
+      ]
+    }
   }
 }

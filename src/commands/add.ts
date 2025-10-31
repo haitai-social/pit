@@ -1,7 +1,7 @@
 import * as path from 'path';
-import { appendVibeHistory } from '../core/vibeHistory';
-import { StorageManager } from '../storage';
-import { RoleEnum, SingleChat, CommandOptions } from '../types';
+import { appendVibeHistory } from '../core/vibeHistory.js';
+import { StorageManager } from '../storage/index.js';
+import { RoleEnum, SingleChat, CommandOptions } from '../types/index.js';
 
 /**
  * add 命令处理器

@@ -4,6 +4,28 @@
 
 🕳️ A command-line tool for managing conversation history and chat logs.
 
+## 🚀 MCP Server Support
+
+**NEW!** Pit now supports running as an MCP (Model Context Protocol) Server, allowing seamless integration with Claude Desktop and other AI assistants for automatic conversation recording.
+
+### Quick MCP Setup
+
+1. Install Pit globally: `npm install -g @haitai-social/pit`
+2. Add to Claude Desktop config:
+   ```json
+   {
+     "mcpServers": {
+       "pit": {
+         "command": "pit",
+         "args": ["mcp"]
+       }
+     }
+   }
+   ```
+3. Restart Claude Desktop
+
+See [MCP_INSTALL.md](./MCP_INSTALL.md) for detailed setup instructions.
+
 ## Installation
 
 ```bash
@@ -12,19 +34,29 @@ npm install -g @haitai-social/pit
 
 ## Usage
 
-### Record Conversation
+### CLI Usage
 
-Use the `pit record --json` command to import chat logs from a JSON file:
+#### Add Chat Record
+
+Add a single chat record to conversation history:
 
 ```bash
-pit record --json conversation.json
+pit add user "Hello, how are you?"
+pit add assistant "I'm doing well, thank you!"
+pit add --conversation my-chat tool "Function executed successfully"
 ```
 
-### View Help
+#### View Help
 
 ```bash
 pit help
 ```
+
+### MCP Server Usage
+
+When running as an MCP server, Pit provides the `pit_add_chat_history` tool that can be called by AI assistants to automatically record conversations.
+
+See [MCP_INSTALL.md](./MCP_INSTALL.md) for MCP server setup and usage details.
 
 ## JSON File Format
 

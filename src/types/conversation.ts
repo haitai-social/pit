@@ -1,4 +1,4 @@
-import { SingleChat } from './common';
+import { SingleChat } from './common.js';
 
 /**
  * 对话内容结构

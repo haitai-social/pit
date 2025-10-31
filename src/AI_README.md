@@ -16,8 +16,7 @@ src/                            # TypeScript源代码目录
 │   └── index.ts               # 类型统一导出文件
 ├── commands/                  # CLI命令处理器
 │   ├── add.ts                # 添加单条聊天记录命令
-│   ├── help.ts               # 帮助信息命令
-│   └── record.ts             # 批量导入JSON聊天记录命令
+│   └── help.ts               # 帮助信息命令
 ├── core/                     # 核心业务逻辑
 │   └── vibeHistory.ts        # 聊天记录操作的核心逻辑
 ├── storage/                  # 存储管理层
@@ -49,7 +48,6 @@ src/                            # TypeScript源代码目录
 
 ### 命令处理层 (`commands/`)
 - **add.ts**: 处理单条记录添加，支持自动conversation命名
-- **record.ts**: 处理JSON文件批量导入
 - **help.ts**: 提供帮助信息显示
 
 ### 业务逻辑层 (`core/`)

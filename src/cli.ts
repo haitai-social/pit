@@ -1,23 +1,17 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { recordCommand } from './commands/record';
-import { helpCommand } from './commands/help';
-import { addCommand } from './commands/add';
-import { registerInitCommand } from './commands/init';
+import { helpCommand } from './commands/help.js';
+import { addCommand } from './commands/add.js';
+import { mcpCommand } from './commands/mcp.js';
+import { registerInitCommand } from './commands/init.js';
+import { VERSION } from './types/version.js';
 
 // 设置程序基本信息
 program
   .name('pit')
   .description('A CLI tool for managing conversation history and chat records')
-  .version('1.0.4');
-
-// 注册 record 命令
-program
-  .command('record')
-  .description('Record chat conversations from JSON file')
-  .option('--json <file>', 'JSON file containing chat conversations')
-  .action(recordCommand);
+  .version(VERSION);
 
 // 注册 add 命令
 program
@@ -25,6 +19,12 @@ program
   .description('Add a single chat record to conversation history')
   .option('--conversation <name>', 'Conversation name (optional, defaults to latest)')
   .action(addCommand);
+
+// 注册 mcp 命令
+program
+  .command('mcp')
+  .description('Start MCP (Model Context Protocol) server')
+  .action(mcpCommand);
 
 // 注册 help 命令
 program

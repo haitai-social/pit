@@ -16,6 +16,7 @@ USAGE:
 COMMANDS:
   record --json <file>                   Record chat conversations from JSON file
   add [--conversation <name>] <role> <content>   Add a single chat record to conversation
+  mcp                                    Start MCP (Model Context Protocol) server
   help                                   Show this help information
 
 OPTIONS:
@@ -26,19 +27,22 @@ OPTIONS:
 EXAMPLES:
   # Record conversations from a JSON file
   pit record --json conversation.json
-  
+
   # Add a user message to the latest conversation
   pit add user "Hello, how are you?"
-  
+
   # Add an assistant response to a specific conversation
   pit add --conversation "my-chat" assistant "I'm doing well, thank you!"
-  
+
   # Add a tool result
   pit add tool "Function executed successfully"
-  
+
+  # Start MCP server
+  pit mcp
+
   # Show help information
   pit help
-  
+
   # Show version
   pit --version
 

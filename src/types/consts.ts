@@ -17,4 +17,4 @@ Command arguments:
 In summary, the command should be formatted as: \`pit add --conversation $conversation-name <role> <content>\``;
 
 export const SUPPORTED_IDES = ['cursor'] as const;
-export type SupportedIDE = typeof SUPPORTED_IDES[number];
+export type SupportedIDETypes = typeof SUPPORTED_IDES[number];
