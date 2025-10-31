@@ -10,11 +10,11 @@ import {
   CallToolResultSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { appendVibeHistory } from './core/vibeHistory.js';
-import { SingleChat, RoleEnum } from './types/index.js';
-import { VERSION } from './types/version.js';
+import { appendVibeHistory } from '../core/vibeHistory.js';
+import { SingleChat, RoleEnum } from '../types/index.js';
+import { VERSION } from '../types/version.js';
 
-class PitMCPServer {
+export class PitMCPServer {
   private server: Server;
 
   constructor() {
@@ -198,23 +198,14 @@ class PitMCPServer {
     try {
       // 创建 stdio transport
       const transport = new StdioServerTransport();
-      
+
       // 连接到 transport
       await this.server.connect(transport);
-      
+
       console.error('Pit MCP Server 已启动，正在监听 stdin/stdout...');
     } catch (error) {
       console.error('Failed to start MCP server:', error);
       throw error;
     }
   }
-}
-
-// 如果直接运行此文件，启动服务器
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const server = new PitMCPServer();
-  server.run().catch((error) => {
-    console.error('启动 Pit MCP Server 失败:', error);
-    process.exit(1);
-  });
 }

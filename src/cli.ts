@@ -3,6 +3,7 @@
 import { program } from 'commander';
 import { helpCommand } from './commands/help.js';
 import { addCommand } from './commands/add.js';
+import { mcpCommand } from './commands/mcp.js';
 import { registerInitCommand } from './commands/init.js';
 import { VERSION } from './types/version.js';
 
@@ -18,6 +19,12 @@ program
   .description('Add a single chat record to conversation history')
   .option('--conversation <name>', 'Conversation name (optional, defaults to latest)')
   .action(addCommand);
+
+// 注册 mcp 命令
+program
+  .command('mcp')
+  .description('Start MCP (Model Context Protocol) server')
+  .action(mcpCommand);
 
 // 注册 help 命令
 program

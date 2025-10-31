@@ -1,6 +1,6 @@
 {
   "name": "@haitai-social/pit",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A CLI tool for managing conversation history and chat records",
   "type": "module",
   "main": "dist/index.js",
@@ -9,13 +9,11 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:mcp": "tsc && chmod +x dist/mcp-server.js",
     "dev": "ts-node src/cli.ts",
-    "dev:mcp": "ts-node src/mcp-server.ts",
+    "dev:mcp": "ts-node src/mcp/index.ts",
     "prepack": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/cli.js",
-    "start:mcp": "node dist/mcp-server.js"
+    "start": "node dist/cli.js"
   },
   "repository": {
     "type": "git",
@@ -71,7 +69,7 @@
     "server": {
       "command": "node",
       "args": [
-        "dist/mcp-server.js"
+        "dist/mcp/index.js"
       ]
     }
   }

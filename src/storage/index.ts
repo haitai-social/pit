@@ -1,4 +1,4 @@
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import * as path from 'path';
 import { Conversation, Meta } from '../types/index.js';
 
@@ -24,7 +24,7 @@ export class StorageManager {
     let searchDir = currentDir;
     while (searchDir !== path.dirname(searchDir)) {
       const pitPath = path.join(searchDir, '.pit');
-      if (fs.existsSync(pitPath)) {
+      if (fs.pathExistsSync(pitPath)) {
         return searchDir;
       }
       searchDir = path.dirname(searchDir);
@@ -34,7 +34,7 @@ export class StorageManager {
     searchDir = currentDir;
     while (searchDir !== path.dirname(searchDir)) {
       const gitPath = path.join(searchDir, '.git');
-      if (fs.existsSync(gitPath)) {
+      if (fs.pathExistsSync(gitPath)) {
         return searchDir;
       }
       searchDir = path.dirname(searchDir);

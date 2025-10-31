@@ -16,8 +16,8 @@
    {
      "mcpServers": {
        "pit": {
-         "command": "npx",
-         "args": ["-y", "@haitai-social/pit", "start:mcp"]
+         "command": "pit",
+         "args": ["mcp"]
        }
      }
    }
