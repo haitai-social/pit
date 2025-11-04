@@ -10,12 +10,18 @@ import {
   CallToolResultSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { appendVibeHistory } from '../core/vibeHistory.js';
-import { SingleChat, RoleEnum } from '../types/index.js';
+import { appendVibeHistory } from '../core/vibe-history.js';
+import { SingleChatSchema, SingleChatType } from '@haitai-social/pit-history-utils';
 import { VERSION } from '../types/version.js';
 
 export class PitMCPServer {
   private server: Server;
+
+  // 定义输入参数的 zod schema
+  private static readonly AddChatHistoryInputSchema = z.object({
+    conversation_name: z.string().min(1, 'conversation_name cannot be empty'),
+    chat_history: z.array(SingleChatSchema).min(1, 'chat_history array cannot be empty'),
+  });
 
   constructor() {
     // 创建 MCP 服务器实例
@@ -63,12 +69,16 @@ export class PitMCPServer {
                         description:
                           'Message role: user (user message), assistant (assistant reply), or tool (tool execution result)',
                       },
+                      name: {
+                        type: 'string',
+                        description: 'Name of the sender. Use the model name for assistant messages, the tool name for tool messages, and the user name for user messages.',
+                      },
                       content: {
                         type: 'string',
                         description: 'The message content',
                       },
                     },
-                    required: ['role', 'content'],
+                    required: ['role', 'name', 'content'],
                   },
                   description:
                     'Array of chat history records, each containing role and content',
@@ -94,69 +104,24 @@ export class PitMCPServer {
   }
 
   private async handleAddChatHistory(args: any): Promise<z.infer<typeof CallToolResultSchema>> {
-    const { conversation_name, chat_history } = args;
-
-    // 验证必需参数
-    if (!conversation_name) {
-      throw new Error('conversation_name parameter is required');
-    }
-
-    if (!Array.isArray(chat_history)) {
-      throw new Error('chat_history parameter must be an array of chat records');
-    }
-
-    if (chat_history.length === 0) {
-      throw new Error('chat_history array cannot be empty');
-    }
-
     try {
+      // 使用 zod 验证输入参数
+      const validatedArgs = PitMCPServer.AddChatHistoryInputSchema.parse(args);
+      const { conversation_name, chat_history } = validatedArgs;
+
       let successCount = 0;
       let errorCount = 0;
 
       // 处理每个聊天记录
       for (let i = 0; i < chat_history.length; i++) {
-        const chatRecord = chat_history[i];
-
-        if (!chatRecord || typeof chatRecord !== 'object') {
-          console.error(`Invalid chat record at index ${i}: must be an object`);
-          errorCount++;
-          continue;
-        }
-
-        const { role, content } = chatRecord;
-
-        if (!role || !content) {
-          console.error(
-            `Invalid chat record at index ${i}: must contain role and content fields`
-          );
-          errorCount++;
-          continue;
-        }
-
-        // 验证 role 参数
-        const validRoles: RoleEnum[] = ['user', 'assistant', 'tool'];
-        if (!validRoles.includes(role as RoleEnum)) {
-          console.error(
-            `Invalid role "${role}" at index ${i}, must be one of: ${validRoles.join(', ')}`
-          );
-          errorCount++;
-          continue;
-        }
+        const singleChat: SingleChatType = chat_history[i];
 
         try {
-          // 构造 singleChat 结构
-          const singleChat: SingleChat = {
-            role: role as RoleEnum,
-            content: content,
-          };
-
           // 调用 appendVibeHistory 方法
           await appendVibeHistory(conversation_name, singleChat);
           successCount++;
         } catch (recordError) {
-          console.error(
-            `Failed to add chat record at index ${i}: ${(recordError as Error).message}`
-          );
+          console.error(`Failed to add chat record at index ${i}: ${(recordError as Error).message}`);
           errorCount++;
         }
       }
@@ -182,6 +147,20 @@ export class PitMCPServer {
         };
       }
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        // 处理 zod 验证错误
+        const errorMessages = error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join('; ');
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `❌ Invalid input parameters: ${errorMessages}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
       return {
         content: [
           {

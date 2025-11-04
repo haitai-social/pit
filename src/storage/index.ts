@@ -1,11 +1,14 @@
 import fs from 'fs-extra';
 import * as path from 'path';
-import { Conversation, Meta } from '../types/index.js';
+import { Meta } from '../types/index.js';
+import { VibeHistoryModel } from '@haitai-social/pit-history-utils';
+import { VibeHistoryContentSchema, IDE_NAME_ENUM } from '@haitai-social/pit-history-utils/dist/types/vibe-history-content.js';
 
 export class StorageManager {
   private workspace: string;
   private pitDir: string;
   private metaFile: string;
+  private cachedMeta: Meta | null = null;
 
   constructor() {
     this.workspace = this.findWorkspace();
@@ -13,14 +16,9 @@ export class StorageManager {
     this.metaFile = path.join(this.pitDir, 'meta.json');
   }
 
-  /**
-   * 查找 workspace 路径
-   * 优先找 .pit 目录，再找 .git 目录，最后使用当前工作目录
-   */
   private findWorkspace(): string {
     let currentDir = process.cwd();
 
-    // 先向上查找 .pit 目录
     let searchDir = currentDir;
     while (searchDir !== path.dirname(searchDir)) {
       const pitPath = path.join(searchDir, '.pit');
@@ -30,7 +28,6 @@ export class StorageManager {
       searchDir = path.dirname(searchDir);
     }
 
-    // 再向上查找 .git 目录
     searchDir = currentDir;
     while (searchDir !== path.dirname(searchDir)) {
       const gitPath = path.join(searchDir, '.git');
@@ -40,68 +37,67 @@ export class StorageManager {
       searchDir = path.dirname(searchDir);
     }
 
-    // 如果都没有找到，使用当前工作目录
     return process.cwd();
   }
 
-  /**
-   * 初始化 .pit 目录和 meta.json 文件
-   */
-  async initialize(): Promise<void> {
+  async initialize(ide?: string): Promise<void> {
     try {
       await fs.ensureDir(this.pitDir);
-      
-      // 检查 meta.json 是否存在，不存在则创建
       if (!(await fs.pathExists(this.metaFile))) {
         const initialMeta: Meta = {
-          conversation_queue: []
+          conversation_queue: [],
+          current_ide: (ide || 'cursor') as typeof IDE_NAME_ENUM[number]
         };
         await fs.writeJson(this.metaFile, initialMeta, { spaces: 2 });
+        this.cachedMeta = initialMeta;
+      } else {
+        // 如果 meta 文件已存在但没有 current_ide 字段，则更新它
+        this.cachedMeta = await this.readMeta();
+      }
+      if (ide && this.cachedMeta.current_ide !== ide) {
+        this.cachedMeta.current_ide = ide as typeof IDE_NAME_ENUM[number];
+        await this.writeMeta(this.cachedMeta);
       }
     } catch (error) {
       throw new Error(`Failed to initialize storage: ${(error as Error).message}`);
     }
   }
 
-  /**
-   * 读取 meta.json 文件
-   */
   async readMeta(): Promise<Meta> {
+    if (this.cachedMeta) {
+      return this.cachedMeta;
+    }
     try {
-      return await fs.readJson(this.metaFile) as Meta;
+      this.cachedMeta = await fs.readJson(this.metaFile) as Meta;
+      return this.cachedMeta;
     } catch (error) {
       throw new Error(`Failed to read meta file: ${(error as Error).message}`);
     }
   }
 
-  /**
-   * 写入 meta.json 文件
-   */
   async writeMeta(data: Meta): Promise<void> {
     try {
       await fs.writeJson(this.metaFile, data, { spaces: 2 });
+      this.cachedMeta = data;
     } catch (error) {
       throw new Error(`Failed to write meta file: ${(error as Error).message}`);
     }
   }
 
-  /**
-   * 读取 conversation 文件
-   */
-  async readConversation(conversationName: string): Promise<Conversation> {
+  async readConversation(conversationName: string): Promise<VibeHistoryModel> {
     const conversationPath = path.join(this.pitDir, `${conversationName}.json`);
     try {
       if (await fs.pathExists(conversationPath)) {
-        return await fs.readJson(conversationPath) as Conversation;
+        const jsonData = await fs.readJson(conversationPath);
+        return VibeHistoryModel.fromJson(JSON.stringify(jsonData));
       } else {
-        // 如果文件不存在，创建新的 conversation 结构
-        const newConversation: Conversation = {
-          version: "v0",
-          content: {
-            chat_list: []
-          }
-        };
-        await fs.writeJson(conversationPath, newConversation, { spaces: 2 });
+        const meta = await this.readMeta();
+        const initialContent = VibeHistoryContentSchema.parse({
+          ide_name: meta.current_ide,
+          chat_list: []
+        });
+        const newConversation = new VibeHistoryModel(initialContent);
+        await fs.writeFile(conversationPath, newConversation.toJSON());
         return newConversation;
       }
     } catch (error) {
@@ -109,77 +105,56 @@ export class StorageManager {
     }
   }
 
-  /**
-   * 写入 conversation 文件
-   */
-  async writeConversation(conversationName: string, data: Conversation): Promise<void> {
+  async writeConversation(conversationName: string, data: VibeHistoryModel): Promise<void> {
     const conversationPath = path.join(this.pitDir, `${conversationName}.json`);
     try {
-      await fs.writeJson(conversationPath, data, { spaces: 2 });
+      await fs.writeFile(conversationPath, data.toJSON());
     } catch (error) {
       throw new Error(`Failed to write conversation ${conversationName}: ${(error as Error).message}`);
     }
   }
 
-  /**
-   * 更新 conversation_queue 列表（FIFO 逻辑）
-   */
   async updateLatestConversation(conversationName: string): Promise<void> {
     try {
       const meta = await this.readMeta();
       const fileName = `${conversationName}.json`;
-      
-      // 移除已存在的相同文件名（如果有的话）
+
       meta.conversation_queue = meta.conversation_queue.filter(name => name !== fileName);
-      
-      // 添加到列表开头
       meta.conversation_queue.unshift(fileName);
-      
-      // 如果列表过长，可以限制数量（可选）
+
       const MAX_RECENT_CONVERSATIONS = 10;
       if (meta.conversation_queue.length > MAX_RECENT_CONVERSATIONS) {
         meta.conversation_queue = meta.conversation_queue.slice(0, MAX_RECENT_CONVERSATIONS);
       }
-      
+
       await this.writeMeta(meta);
     } catch (error) {
       throw new Error(`Failed to update latest conversation: ${(error as Error).message}`);
     }
   }
-  
-  /**
-   * 创建 Cursor MCP 配置文件
-   */
+
   async createCursorMcpConfig(): Promise<void> {
     try {
-      // 直接使用工作空间下的 .cursor 目录
       const cursorDir = path.join(this.workspace, '.cursor');
-
-      // 确保 .cursor 目录存在
       await fs.ensureDir(cursorDir);
-
-      // 创建 MCP 配置文件
       const mcpConfigPath = path.join(cursorDir, 'mcp.json');
 
-      // 检查是否已有配置文件，如果有则合并
       let existingConfig = {};
       if (await fs.pathExists(mcpConfigPath)) {
         try {
           existingConfig = await fs.readJson(mcpConfigPath);
         } catch (error) {
-          // 如果读取失败，使用空配置
           existingConfig = {};
         }
       }
 
-      // 合并配置，确保 pit server 配置存在
       const mcpConfig = {
         ...existingConfig,
         mcpServers: {
           ...((existingConfig as any).mcpServers || {}),
-          pit: {
-            command: "npx",
-            args: ["-y", "@haitai-social/pit", "start:mcp"]
+          'pit-mcp': {
+            command: "pit",
+            args: ["mcp"]
           }
         }
       };
@@ -191,9 +166,6 @@ export class StorageManager {
     }
   }
 
-  /**
-   * 获取项目根目录路径
-   */
   getWorkspacePath(): string {
     return this.workspace;
   }

@@ -4,7 +4,7 @@
  */
 
 // 导出基础公共类型
-export { RoleEnum, SingleChat, CommandOptions } from './common';
+export { CommandOptions } from './common';
 
 // 导出对话相关类型
-export { ConversationContent, Conversation, Meta } from './conversation';
+export { Meta } from './conversation';
