@@ -7,4 +7,4 @@
 export { RoleEnum, SingleChat, CommandOptions } from './common';
 
 // 导出对话相关类型
-export { ConversationContent, Conversation, Meta } from './conversation';
+export { ConversationContent, Meta } from './conversation';

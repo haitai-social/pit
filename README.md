@@ -1,5 +1,9 @@
 # Pit - AI Conversation History Management Tool
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node Version](https://img.shields.io/node/v/@haitai-social/pit)](https://nodejs.org/)
+[![NPM Version](https://img.shields.io/npm/v/@haitai-social/pit)](https://www.npmjs.com/package/@haitai-social/pit)
+
 💡`pit` stand for `prompt git`.
 
 🕳️ A command-line tool for managing conversation history and chat logs.

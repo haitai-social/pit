@@ -6,13 +6,17 @@ export type RoleEnum = 'user' | 'assistant' | 'tool';
 
 /**
  * 单个聊天记录的结构定义
- * 包含角色和内容两个字段
+ * 包含角色、名称、内容和选择状态
  */
 export interface SingleChat {
   /** 聊天角色：用户、助手或工具 */
   role: RoleEnum;
-  /** 聊天内容，可以是字符串或任意对象 */
-  content: string | any;
+  /** 聊天记录名称 */
+  name: string;
+  /** 聊天内容 */
+  content: string;
+  /** 是否被选中 */
+  is_select: boolean;
 }
 
 /**

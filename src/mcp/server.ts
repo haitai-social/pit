@@ -10,7 +10,7 @@ import {
   CallToolResultSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { appendVibeHistory } from '../core/vibeHistory.js';
+import { appendVibeHistory } from '../core/vibe-history.js';
 import { SingleChat, RoleEnum } from '../types/index.js';
 import { VERSION } from '../types/version.js';
 
@@ -63,12 +63,16 @@ export class PitMCPServer {
                         description:
                           'Message role: user (user message), assistant (assistant reply), or tool (tool execution result)',
                       },
+                      name: {
+                        type: 'string',
+                        description: 'Name of the sender. Use the model name for assistant messages, the tool name for tool messages, and the user name for user messages.',
+                      },
                       content: {
                         type: 'string',
                         description: 'The message content',
                       },
                     },
-                    required: ['role', 'content'],
+                    required: ['role', 'name', 'content'],
                   },
                   description:
                     'Array of chat history records, each containing role and content',
@@ -147,7 +151,9 @@ export class PitMCPServer {
           // 构造 singleChat 结构
           const singleChat: SingleChat = {
             role: role as RoleEnum,
+            name: `${role}_${Date.now()}_${i}`,
             content: content,
+            is_select: true,
           };
 
           // 调用 appendVibeHistory 方法

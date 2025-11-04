@@ -10,17 +10,6 @@ export interface ConversationContent {
 }
 
 /**
- * 完整的对话结构
- * 包含版本信息和对话内容
- */
-export interface Conversation {
-  /** 对话格式版本 */
-  version: string;
-  /** 对话内容 */
-  content: ConversationContent;
-}
-
-/**
  * 元数据结构
  * 管理对话队列信息
  */

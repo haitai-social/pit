@@ -15,7 +15,7 @@ program
 
 // 注册 add 命令
 program
-  .command('add <role> <content>')
+  .command('add <role> <name> <content>')
   .description('Add a single chat record to conversation history')
   .option('--conversation <name>', 'Conversation name (optional, defaults to latest)')
   .action(addCommand);
