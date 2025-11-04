@@ -1,8 +1,10 @@
 import * as path from 'path';
 import { appendVibeHistory } from '../core/vibe-history.js';
 import { StorageManager } from '../storage/index.js';
-import { RoleEnum, CommandOptions } from '../types/index.js';
+import { CommandOptions } from '../types/index.js';
 import { SingleChatSchema } from '@haitai-social/pit-history-utils';
+import { ROLE_ENUM } from '@haitai-social/pit-history-utils/dist/types/single-chat.js';
+import { IDE_NAME_ENUM } from '@haitai-social/pit-history-utils/dist/types/vibe-history-content.js';
 
 export async function addCommand(role: string, name: string, content: string, options: CommandOptions): Promise<void> {
   try {
@@ -24,8 +26,8 @@ export async function addCommand(role: string, name: string, content: string, op
       process.exit(1);
     }
 
-    const validRoles: RoleEnum[] = ['user', 'assistant', 'tool'];
-    if (!validRoles.includes(role as RoleEnum)) {
+    const validRoles: typeof ROLE_ENUM[number][] = ['user', 'assistant', 'tool'];
+    if (!validRoles.includes(role as typeof ROLE_ENUM[number])) {
       console.error(`❌ Error: Invalid role "${role}". Must be one of: ${validRoles.join(', ')}`);
       process.exit(1);
     }
@@ -41,7 +43,7 @@ export async function addCommand(role: string, name: string, content: string, op
     console.log(`   Content: ${content.length > 100 ? content.slice(0, 100) + '...' : content}`);
 
     const singleChat = SingleChatSchema.parse({
-      role: role as RoleEnum,
+      role: role as typeof ROLE_ENUM[number],
       name: name,
       content: content,
       is_select: true
@@ -87,7 +89,8 @@ async function createDefaultConversation(storage: StorageManager, content: strin
     await storage.writeMeta(meta);
   } catch (error) {
     const newMeta = {
-      conversation_queue: [`${conversationName}.json`]
+      conversation_queue: [`${conversationName}.json`],
+      current_ide: 'cursor' as typeof IDE_NAME_ENUM[number]
     };
     await storage.writeMeta(newMeta);
   }

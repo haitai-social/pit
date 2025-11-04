@@ -2,12 +2,13 @@ import fs from 'fs-extra';
 import * as path from 'path';
 import { Meta } from '../types/index.js';
 import { VibeHistoryModel } from '@haitai-social/pit-history-utils';
-import { VibeHistoryContentSchema } from '@haitai-social/pit-history-utils/dist/types/vibe-history-content';
+import { VibeHistoryContentSchema, IDE_NAME_ENUM } from '@haitai-social/pit-history-utils/dist/types/vibe-history-content.js';
 
 export class StorageManager {
   private workspace: string;
   private pitDir: string;
   private metaFile: string;
+  private cachedMeta: Meta | null = null;
 
   constructor() {
     this.workspace = this.findWorkspace();
@@ -39,14 +40,23 @@ export class StorageManager {
     return process.cwd();
   }
 
-  async initialize(): Promise<void> {
+  async initialize(ide?: string): Promise<void> {
     try {
       await fs.ensureDir(this.pitDir);
       if (!(await fs.pathExists(this.metaFile))) {
         const initialMeta: Meta = {
-          conversation_queue: []
+          conversation_queue: [],
+          current_ide: (ide || 'cursor') as typeof IDE_NAME_ENUM[number]
         };
         await fs.writeJson(this.metaFile, initialMeta, { spaces: 2 });
+        this.cachedMeta = initialMeta;
+      } else {
+        // 如果 meta 文件已存在但没有 current_ide 字段，则更新它
+        this.cachedMeta = await this.readMeta();
+      }
+      if (ide && this.cachedMeta.current_ide !== ide) {
+        this.cachedMeta.current_ide = ide as typeof IDE_NAME_ENUM[number];
+        await this.writeMeta(this.cachedMeta);
       }
     } catch (error) {
       throw new Error(`Failed to initialize storage: ${(error as Error).message}`);
@@ -54,8 +64,12 @@ export class StorageManager {
   }
 
   async readMeta(): Promise<Meta> {
+    if (this.cachedMeta) {
+      return this.cachedMeta;
+    }
     try {
-      return await fs.readJson(this.metaFile) as Meta;
+      this.cachedMeta = await fs.readJson(this.metaFile) as Meta;
+      return this.cachedMeta;
     } catch (error) {
       throw new Error(`Failed to read meta file: ${(error as Error).message}`);
     }
@@ -64,6 +78,7 @@ export class StorageManager {
   async writeMeta(data: Meta): Promise<void> {
     try {
       await fs.writeJson(this.metaFile, data, { spaces: 2 });
+      this.cachedMeta = data;
     } catch (error) {
       throw new Error(`Failed to write meta file: ${(error as Error).message}`);
     }
@@ -76,8 +91,9 @@ export class StorageManager {
         const jsonData = await fs.readJson(conversationPath);
         return VibeHistoryModel.fromJson(JSON.stringify(jsonData));
       } else {
+        const meta = await this.readMeta();
         const initialContent = VibeHistoryContentSchema.parse({
-          ide_name: conversationName,
+          ide_name: meta.current_ide,
           chat_list: []
         });
         const newConversation = new VibeHistoryModel(initialContent);
