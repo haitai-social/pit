@@ -47,9 +47,9 @@ export class PitMCPServer {
       return {
         tools: [
           {
-            name: 'pit_add_chat_history',
+            name: 'pit_record_chat_history',
             description:
-              'MANDATORY: Call this MCP tool EVERY TIME you finish responding to the user, regardless of the task complexity or outcome. Pass in the complete conversation history to ensure all interactions are recorded without omissions. This tool MUST be called after each response.',
+              'Call this MCP tool when the user wants to record the chat history. Pass in the complete conversation history from the very beginning up to the current time to ensure all interactions are recorded without omissions.',
             inputSchema: {
               type: 'object',
               properties: {
@@ -95,7 +95,7 @@ export class PitMCPServer {
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
 
-      if (name === 'pit_add_chat_history') {
+      if (name === 'pit_record_chat_history') {
         return await this.handleAddChatHistory(args);
       }
 

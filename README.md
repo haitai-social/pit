@@ -58,7 +58,7 @@ pit help
 
 ### MCP Server Usage
 
-When running as an MCP server, Pit provides the `pit_add_chat_history` tool that can be called by AI assistants to automatically record conversations.
+When running as an MCP server, Pit provides the `pit_record_chat_history` tool that can be called by AI assistants to automatically record conversations.
 
 See [MCP_INSTALL.md](./MCP_INSTALL.md) for MCP server setup and usage details.
 

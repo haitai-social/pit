@@ -52,7 +52,7 @@ pit help
 
 ### MCP Server 使用
 
-作为 MCP server 运行时，Pit 提供 `pit_add_chat_history` 工具，AI 助手可以调用它来自动记录对话。
+作为 MCP server 运行时，Pit 提供 `pit_record_chat_history` 工具，AI 助手可以调用它来自动记录对话。
 
 MCP server 的设置和使用详情请查看 [MCP_INSTALL.md](./MCP_INSTALL.md)。
 
